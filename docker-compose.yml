@@ -1,0 +1,37 @@
+version: "3.8"
+
+x-environment: &default-environment
+  ASPNETCORE_ENVIRONMENT: Development
+
+services:
+  rabbitmq:
+    container_name: rabbitmqcontainer
+    image: rabbitmq:management
+    hostname: "rabbitmq"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  producer:
+    container_name: producer
+    hostname: producer
+    build:
+      context: .
+      dockerfile: src/Producer.API/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - rabbitmq
+    environment:
+      <<: *default-environment
+  consumer:
+    container_name: consumer
+    hostname: consumer
+    build:
+      context: .
+      dockerfile: src/Consumer.API/Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - rabbitmq
+    environment:
+      <<: *default-environment
